@@ -1,4 +1,3 @@
-// AlumnoService.java
 package com.bm.ejemplo.universidad.service;
 
 import com.bm.ejemplo.universidad.model.Alumno;
@@ -17,32 +16,30 @@ public class AlumnoService {
         this.alumnoRepository = alumnoRepository;
     }
 
-    public Alumno crearAlumno(Alumno alumno) {
-        return alumnoRepository.save(alumno);
-    }
-
-    public List<Alumno> listarAlumnos() {
+    public List<Alumno> listarTodos() {
         return alumnoRepository.findAll();
     }
 
-    public Optional<Alumno> obtenerAlumnoPorId(Long id) {
+    public Optional<Alumno> buscarPorId(Long id) {
         return alumnoRepository.findById(id);
     }
 
-    public Optional<Alumno> actualizarAlumno(Long id, Alumno alumnoActualizado) {
-        return alumnoRepository.findById(id).map(alumno -> {
-            alumno.setNombre(alumnoActualizado.getNombre());
-            alumno.setApellido(alumnoActualizado.getApellido());
-            alumno.setEmail(alumnoActualizado.getEmail());
-            return alumnoRepository.save(alumno);
-        });
+    public Alumno guardar(Alumno alumno) {
+        return alumnoRepository.save(alumno);
     }
 
-    public boolean eliminarAlumno(Long id) {
-        if (alumnoRepository.existsById(id)) {
-            alumnoRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public Alumno actualizar(Long id, Alumno datosAlumno) {
+        Alumno alumno = alumnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Alumno no encontrado"));
+
+        alumno.setNombre(datosAlumno.getNombre());
+        alumno.setEmail(datosAlumno.getEmail());
+
+        return alumnoRepository.save(alumno);
+    }
+
+    public void eliminar(Long id) {
+        alumnoRepository.deleteById(id);
     }
 }
+

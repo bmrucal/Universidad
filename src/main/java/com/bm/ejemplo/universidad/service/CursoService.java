@@ -1,4 +1,3 @@
-// CursoService.java
 package com.bm.ejemplo.universidad.service;
 
 import com.bm.ejemplo.universidad.model.Curso;
@@ -17,31 +16,30 @@ public class CursoService {
         this.cursoRepository = cursoRepository;
     }
 
-    public Curso crearCurso(Curso curso) {
-        return cursoRepository.save(curso);
-    }
-
-    public List<Curso> listarCursos() {
+    public List<Curso> listarTodos() {
         return cursoRepository.findAll();
     }
 
-    public Optional<Curso> obtenerCursoPorId(Long id) {
+    public Optional<Curso> buscarPorId(Long id) {
         return cursoRepository.findById(id);
     }
 
-    public Optional<Curso> actualizarCurso(Long id, Curso cursoActualizado) {
-        return cursoRepository.findById(id).map(curso -> {
-            curso.setNombreCurso(cursoActualizado.getNombreCurso());
-            curso.setDescripcion(cursoActualizado.getDescripcion());
-            return cursoRepository.save(curso);
-        });
+    public Curso guardar(Curso curso) {
+        return cursoRepository.save(curso);
     }
 
-    public boolean eliminarCurso(Long id) {
-        if (cursoRepository.existsById(id)) {
-            cursoRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public Curso actualizar(Long id, Curso datosCurso) {
+        Curso curso = cursoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
+
+        curso.setNombre(datosCurso.getNombre());
+        curso.setDescripcion(datosCurso.getDescripcion());
+
+        return cursoRepository.save(curso);
+    }
+
+    public void eliminar(Long id) {
+        cursoRepository.deleteById(id);
     }
 }
+

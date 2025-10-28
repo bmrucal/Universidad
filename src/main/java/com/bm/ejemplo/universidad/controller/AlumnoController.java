@@ -1,52 +1,56 @@
-// AlumnoController.java
 package com.bm.ejemplo.universidad.controller;
 
 import com.bm.ejemplo.universidad.model.Alumno;
 import com.bm.ejemplo.universidad.service.AlumnoService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/alumnos")
+@RequestMapping("/api/alumnos")
 public class AlumnoController {
 
     private final AlumnoService alumnoService;
 
+    @Autowired
     public AlumnoController(AlumnoService alumnoService) {
         this.alumnoService = alumnoService;
     }
 
-    @PostMapping
-    public ResponseEntity<Alumno> crearAlumno(@RequestBody Alumno alumno) {
-        return ResponseEntity.ok(alumnoService.crearAlumno(alumno));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Alumno>> listarAlumnos() {
-        return ResponseEntity.ok(alumnoService.listarAlumnos());
+    public List<Alumno> getAll() {
+        return alumnoService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Alumno> obtenerAlumnoPorId(@PathVariable Long id) {
-        return alumnoService.obtenerAlumnoPorId(id)
+    public ResponseEntity<Alumno> getById(@PathVariable Long id) {
+        return alumnoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping
+    public Alumno create(@RequestBody Alumno alumno) {
+        return alumnoService.guardar(alumno);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Alumno> actualizarAlumno(@PathVariable Long id, @RequestBody Alumno alumno) {
-        return alumnoService.actualizarAlumno(id, alumno)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<Alumno> update(@PathVariable Long id, @RequestBody Alumno alumno) {
+        return alumnoService.buscarPorId(id)
+                .map(existing -> {
+                    existing.setNombre(alumno.getNombre());
+                    existing.setEmail(alumno.getEmail());
+                    Alumno updated = alumnoService.guardar(existing);
+                    return ResponseEntity.ok(updated);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarAlumno(@PathVariable Long id) {
-        if (alumnoService.eliminarAlumno(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        alumnoService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

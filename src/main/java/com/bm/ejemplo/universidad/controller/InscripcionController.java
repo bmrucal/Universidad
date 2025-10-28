@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inscripciones")
+@RequestMapping("/api/inscripciones")
 public class InscripcionController {
 
     private final InscripcionService inscripcionService;
@@ -17,35 +17,53 @@ public class InscripcionController {
         this.inscripcionService = inscripcionService;
     }
 
-    @PostMapping
-    public ResponseEntity<Inscripcion> crearInscripcion(@RequestBody Inscripcion inscripcion) {
-        return ResponseEntity.ok(inscripcionService.crearInscripcion(inscripcion));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Inscripcion>> listarInscripciones() {
-        return ResponseEntity.ok(inscripcionService.listarInscripciones());
+    public List<Inscripcion> listarTodas() {
+        return inscripcionService.listarTodas();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Inscripcion> obtenerInscripcionPorId(@PathVariable Long id) {
-        return inscripcionService.obtenerInscripcionPorId(id)
+    public ResponseEntity<Inscripcion> obtenerPorId(@PathVariable Long id) {
+        return inscripcionService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Inscripcion> actualizarInscripcion(@PathVariable Long id, @RequestBody Inscripcion inscripcion) {
-        return inscripcionService.actualizarInscripcion(id, inscripcion)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping
+    public ResponseEntity<Inscripcion> crear(@RequestBody InscripcionRequest request) {
+        try {
+            Inscripcion inscripcion = inscripcionService.guardar(request.getAlumnoId(), request.getCursoId());
+            return ResponseEntity.ok(inscripcion);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarInscripcion(@PathVariable Long id) {
-        if (inscripcionService.eliminarInscripcion(id)) {
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        inscripcionService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    public static class InscripcionRequest {
+        private Long alumnoId;
+        private Long cursoId;
+
+        public Long getAlumnoId() {
+            return alumnoId;
         }
-        return ResponseEntity.notFound().build();
+
+        public void setAlumnoId(Long alumnoId) {
+            this.alumnoId = alumnoId;
+        }
+
+        public Long getCursoId() {
+            return cursoId;
+        }
+
+        public void setCursoId(Long cursoId) {
+            this.cursoId = cursoId;
+        }
     }
 }
+

@@ -1,4 +1,3 @@
-// CursoController.java
 package com.bm.ejemplo.universidad.controller;
 
 import com.bm.ejemplo.universidad.model.Curso;
@@ -9,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cursos")
+@RequestMapping("/api/cursos")
 public class CursoController {
 
     private final CursoService cursoService;
@@ -18,35 +17,36 @@ public class CursoController {
         this.cursoService = cursoService;
     }
 
-    @PostMapping
-    public ResponseEntity<Curso> crearCurso(@RequestBody Curso curso) {
-        return ResponseEntity.ok(cursoService.crearCurso(curso));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Curso>> listarCursos() {
-        return ResponseEntity.ok(cursoService.listarCursos());
+    public List<Curso> listarTodos() {
+        return cursoService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> obtenerCursoPorId(@PathVariable Long id) {
-        return cursoService.obtenerCursoPorId(id)
+    public ResponseEntity<Curso> obtenerPorId(@PathVariable Long id) {
+        return cursoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public Curso crear(@RequestBody Curso curso) {
+        return cursoService.guardar(curso);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Curso> actualizarCurso(@PathVariable Long id, @RequestBody Curso curso) {
-        return cursoService.actualizarCurso(id, curso)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Curso> actualizar(@PathVariable Long id, @RequestBody Curso curso) {
+        try {
+            return ResponseEntity.ok(cursoService.actualizar(id, curso));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCurso(@PathVariable Long id) {
-        if (cursoService.eliminarCurso(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        cursoService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
+

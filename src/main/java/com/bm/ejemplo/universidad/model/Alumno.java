@@ -1,11 +1,12 @@
 package com.bm.ejemplo.universidad.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Table(name = "alumnos")
 public class Alumno {
 
     @Id
@@ -13,26 +14,23 @@ public class Alumno {
     private Long id;
 
     private String nombre;
-    private String apellido;
+
     private String email;
 
-    public Alumno() {}
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Inscripcion> inscripciones = new HashSet<>();
 
-    public Alumno(String nombre, String apellido, String email) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-    }
-
+    // Getters y setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getApellido() { return apellido; }
-    public void setApellido(String apellido) { this.apellido = apellido; }
-
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public Set<Inscripcion> getInscripciones() { return inscripciones; }
+    public void setInscripciones(Set<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
 }
